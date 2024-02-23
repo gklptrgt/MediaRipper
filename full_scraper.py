@@ -137,7 +137,7 @@ for row in rows:
         else:
             cats_db += item + ","
 
-    print("hash :",hash)
+    print("hash :",hashed)
     print("title:",title)
     print("slug :",slug)
     print("Genre:",cats_db)

@@ -5,24 +5,16 @@ import requests
 import bs4
 from fake_headers import Headers
 
-def generate_header() -> str:
-    result = {}    
-    header = Headers(
-        browser="chrome",  # Generate only Chrome UA
-        os="win",  # Generate ony Windows platform
-    )
-    
-    result['User-Agent'] = header.generate()['User-Agent']
-    return result
-    print("A new User-Agent generated.")
-
 # lookslike we dont need selenium
-link = "https://aniwave.to/watch/one-piece.ov8/ep-1"
+link = "https://ww4.gogoanime2.org/anime/dead-mount-death-play-part-2"
+# link2 = "https://kissanime.co/Anime/hack-G-U-Returner/OVA?id=44622"
+# req = requests.get(link, headers=generate_header())
 
-req = requests.get(link, headers=generate_header())
+for x in range(1000):
 
+    req = requests.get(link)
+    print(req.status_code)
+    soup = bs4.BeautifulSoup(req.content, "lxml")
 
-soup = bs4.BeautifulSoup(req.content, "lxml")
-
-x = soup.select("#w-servers .active")
-print(x)
+    x = soup.select("h1")
+    print(x)

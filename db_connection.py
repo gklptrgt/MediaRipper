@@ -68,8 +68,8 @@ class Comm:
         self.cursor.execute(query,(hash, cats_db,"Free",title, slug, desc, db_image,seo_title,seo_desc,seo_keyword))
         self.connection.commit()
 
-        query = "INSERT INTO `season` (series_id, season_name,season_slug,season_poster,seo_title,seo_description,seo_keyword) VALUES (%s,%s,%s,%s,%s,%s,%s)"
-        self.cursor.execute(query,(hash, "Season 1", "season-1",db_image,seo_title,seo_desc,seo_keyword))
+        query = "INSERT INTO `season` (id, series_id, season_name,season_slug,season_poster,seo_title,seo_description,seo_keyword) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)"
+        self.cursor.execute(query,(hash, hash, "Season 1", "season-1",db_image,seo_title,seo_desc,seo_keyword))
         self.connection.commit()
         
         for item in episodes_list:

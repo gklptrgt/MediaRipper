@@ -137,6 +137,7 @@ for row in rows:
         else:
             cats_db += item + ","
 
+    print("hash :",hash)
     print("title:",title)
     print("slug :",slug)
     print("Genre:",cats_db)
@@ -149,7 +150,7 @@ for row in rows:
 
     if status == "Ongoing":
         csv_master.add_to_ongoing(attack_link)
-        
+
     break
 
 # print(cats)

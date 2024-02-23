@@ -13,4 +13,7 @@ def read_from_atlas():
             rows.append(row)
     return rows
 
-read_from_atlas()
+def add_to_cats(no, name):
+    with open('cats.csv','a', newline='',  encoding="utf-8") as f:
+        writer = csv.writer(f)
+        writer.writerow([no, name])

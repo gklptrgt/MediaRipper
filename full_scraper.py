@@ -24,9 +24,6 @@ for row in rows:
     # desc
     # Desc has Type | Genre | Status | Released
     desc = ""
-    desc_title = '<span class="desc-title">'
-    desc_item = '<span class="desc-item">'
-    desc_obj_end ='</span>'
     genre_list = None
     release_date = None
     status = None # add Ongoing links to the active_anime_list.csv
@@ -35,7 +32,7 @@ for row in rows:
         text = x.text
         if "Type" in text:
             t_demo = text.split(":")
-            manip = desc_title + t_demo[0].strip() + desc_obj_end + ":" +desc_item +t_demo[1].strip() +desc_obj_end + "<br>"
+            manip =  t_demo[0].strip()+ ": " + t_demo[1].strip() + " |"
             desc += manip
         if "Genre" in text:
             text = text.replace("\n","")
@@ -43,16 +40,14 @@ for row in rows:
             text = text.replace(","," | ")
             g_demo = text.split(":")
             genre_list = g_demo[1].split(" | ")
-            manip = desc_title + g_demo[0].strip() + desc_obj_end + ":" + desc_item + g_demo[1].strip() +desc_obj_end + "<br>"
-            desc += manip
         if "Released" in text:
             r_demo = text.split(":")
-            manip = desc_title + r_demo[0].strip() + desc_obj_end + ":" + desc_item + r_demo[1].strip() + desc_obj_end+ "<br>"
+            manip = r_demo[0].strip() + ": " + r_demo[1].strip() + " |"
             release_date = r_demo[1].strip()
             desc += manip
         if "Status" in text:
             s_demo = text.split(":")
-            manip = desc_title + s_demo[0].strip() + desc_obj_end + ":" + desc_item + s_demo[1].strip() + desc_obj_end+ "<br>"
+            manip = s_demo[0].strip() + ": " + s_demo[1].strip() + " |"
             status = s_demo[1].strip()
             desc += manip
 
@@ -61,18 +56,36 @@ for row in rows:
     for img in temp_img:
         download_link = "https://ww4.gogoanime2.org" + img['src']
 
+    # episode links
+    episodes = []
+    temp_eps = soup.select("#episode_related a")
+    for ep in temp_eps:
+        episode_link = "https://ww4.gogoanime2.org" + ep['href']
+        episodes.append(episode_link)
+    
+    episodes_list = []
+    for ep in episodes:
+        episodes_urls = {}
+        req = tools.link_checker(ep)
+        episode_no = ep.split("/")[-1]
+        print("1",episode_no)
+        soup = bs4.BeautifulSoup(req.content, "lxml")
+
+        video_tmp = soup.select("#playerframe")
+        for x in video_tmp:
+            video_link = x['src']
+
+
+        episodes_urls["ep_no"] = episode_no
+        episodes_urls["url"] = video_link
+
+        episodes_list.append(episodes_urls)
 
     print("title:",title)
     print("slug :",slug)
     print("img  :",download_link)
     print("desc :",desc)
-
-
-
-    # scraping anime episodes links
-
-
-    # going trough anime episode links and scraping the video src
+    print("episo:",episodes_list)
 
     # uploading data to the db and ftp
 

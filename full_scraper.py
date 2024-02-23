@@ -4,23 +4,58 @@
 import tools
 import csv_master
 import bs4
+import requests
+import os
+from hashlib import blake2b
+from db_connection import Comm
+
+def hash_text(stringx: str) -> str:
+    key = b"GtScript2023"  # replace with a longer or random key if possible
+    h = blake2b(key=key, digest_size=6)
+    h.update(stringx.encode("utf-8"))
+    return h.hexdigest()
+
+images_folder = None
+
+def check_image_directory() -> dict:
+    global images_folder
+    print("Directory Check")
+    directory_folder = "images"
+    if os.path.isdir(directory_folder):
+        print("Directory '{}' exists".format(directory_folder))
+        images_folder = os.path.abspath(directory_folder)
+    else:
+        os.mkdir(directory_folder)
+        print("Directory '{}' does not exist".format(directory_folder))
+        print(f"Directory made: {os.path.isdir(directory_folder)}")
+        check_image_directory()
+
+db = Comm()
+
+check_image_directory()
 
 rows = csv_master.read_from_atlas()
-
+cats = csv_master.read_cats()
 for row in rows:
     sub_link = row[1]
     attack_link = "https://ww4.gogoanime2.org" + sub_link
-    
+    slug = sub_link[7:].strip()
+    hashed = hash_text(slug)
+
+    db.connect()
+    if db.check_exists(slug):
+        print(f"{slug} - Already Exists")
+        continue
+    db.disconnect()
     req = tools.link_checker(attack_link)
-    
+
     # scraping anime information
     soup = bs4.BeautifulSoup(req.content, "lxml")
-
     temp_title = soup.select("h1")
     # title
     title = temp_title[0].text.strip()
     # slug
-    slug = sub_link[7:].strip()
+
     # desc
     # Desc has Type | Genre | Status | Released
     desc = ""
@@ -56,6 +91,12 @@ for row in rows:
     for img in temp_img:
         download_link = "https://ww4.gogoanime2.org" + img['src']
 
+    img_data = requests.get(download_link).content
+    with open(f'{images_folder}/{slug}.jpg', 'wb') as handler:
+        handler.write(img_data)
+        print("Image downloaded.")
+
+    img_name = f"{slug}.jpg"
     # episode links
     episodes = []
     temp_eps = soup.select("#episode_related a")
@@ -75,19 +116,40 @@ for row in rows:
         for x in video_tmp:
             video_link = x['src']
 
-
         episodes_urls["ep_no"] = episode_no
         episodes_urls["url"] = video_link
 
         episodes_list.append(episodes_urls)
+    cats_list_db = []
+    while True:
+        try:
+            check = genre_list.pop()
+            for cat in cats:
+                if check in cat:
+                    cats_list_db.append(cat[0])
+        except:
+            break
+    
+    cats_db = ""
+    for item in cats_list_db:
+        if item == cats_list_db[-1]:
+            cats_db += item
+        else:
+            cats_db += item + ","
 
     print("title:",title)
     print("slug :",slug)
-    print("img  :",download_link)
+    print("Genre:",cats_db)
+    print("img  :",img_name)
     print("desc :",desc)
     print("episo:",episodes_list)
+    db.connect()
+    db.add_data(hashed,cats_db,title,slug,desc,img_name,episodes_list,release_date)
+    db.disconnect()
 
-    # uploading data to the db and ftp
-
-    # done for first anime
+    if status == "Ongoing":
+        csv_master.add_to_ongoing(attack_link)
+        
     break
+
+# print(cats)

@@ -85,7 +85,7 @@ class Comm:
 
         self.disconnect()
 
-        session = ftplib.FTP('178.16.128.82', 'u817545168.gtscript', 'GtScript20.')
+        session = ftplib.FTP('178.16.128.82', 'u817545168.anime', 'GtScript20.')
         file = open(f'images/{image}','rb')
         session.storbinary(f'STOR {image}', file)
         file.close()

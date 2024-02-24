@@ -6,16 +6,17 @@ import csv_master
 import bs4
 import requests
 import os
-from hashlib import blake2b
+# from hashlib import blake2b
 from db_connection import Comm
 
-def hash_text(stringx: str) -> str:
-    key = b"GtScript2023"  # replace with a longer or random key if possible
-    h = blake2b(key=key, digest_size=6)
-    h.update(stringx.encode("utf-8"))
-    return h.hexdigest()
+# def hash_text(stringx: str) -> str:
+#     key = b"GtScript2023"  # replace with a longer or random key if possible
+#     h = blake2b(key=key, digest_size=6)
+#     h.update(stringx.encode("utf-8"))
+#     return h.hexdigest()
 
 images_folder = None
+latest = 0
 
 def check_image_directory() -> dict:
     global images_folder
@@ -33,14 +34,14 @@ def check_image_directory() -> dict:
 db = Comm()
 
 check_image_directory()
-
+increment = 1
 rows = csv_master.read_from_atlas()
 cats = csv_master.read_cats()
 for row in rows:
     sub_link = row[1]
     attack_link = "https://ww4.gogoanime2.org" + sub_link
     slug = sub_link[7:].strip()
-    hashed = hash_text(slug)
+    # hashed = hash_text(slug)
 
     db.connect()
     if db.check_exists(slug):
@@ -136,21 +137,26 @@ for row in rows:
             cats_db += item
         else:
             cats_db += item + ","
-
-    print("hash :",hashed)
+    
+    print("id :",increment)
     print("title:",title)
     print("slug :",slug)
     print("Genre:",cats_db)
     print("img  :",img_name)
     print("desc :",desc)
     print("episo:",episodes_list)
-    db.connect()
-    db.add_data(hashed,cats_db,title,slug,desc,img_name,episodes_list,release_date)
-    db.disconnect()
 
     if status == "Ongoing":
         csv_master.add_to_ongoing(attack_link)
+        latest = 1
 
+
+    db.connect()
+    db.add_data(increment,cats_db,title,slug,desc,img_name,episodes_list,release_date, latest)
+    db.disconnect()
+
+
+    increment += 1
     break
 
 # print(cats)

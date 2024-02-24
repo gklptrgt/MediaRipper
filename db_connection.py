@@ -55,7 +55,7 @@ class Comm:
             res = False
         return res
     
-    def add_data(self, hash, cats_db, title,slug, desc, image,episodes_list,release_date):
+    def add_data(self, hash, cats_db, title,slug, desc, image,episodes_list,release_date, latest):
         self.connect()
         # add data to the table.
         db_image = "upload/"+image
@@ -72,15 +72,19 @@ class Comm:
         self.cursor.execute(query,(hash, hash, "Season 1", "season-1",db_image,seo_title,seo_desc,seo_keyword))
         self.connection.commit()
         
+        lastest_data = 0
         for item in episodes_list:
             ep_no = item['ep_no']
             url = item['url']
 
             video_title = "Episode " + ep_no
             video_slug = "episode-" + ep_no
+            
+            if latest == 1 and item == episodes_list[-1]:
+                lastest_data = 1
 
-            query = "INSERT INTO `episodes` (video_access, episode_series_id,episode_season_id,video_title,release_date,video_slug,video_image,video_url) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)"
-            self.cursor.execute(query,("Free",hash,hash,video_title,release_date,video_slug,db_image,url))
+            query = "INSERT INTO `episodes` (video_access, episode_series_id,episode_season_id,video_title,release_date,video_slug,video_image,video_url,latest) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+            self.cursor.execute(query,("Free",hash,hash,video_title,release_date,video_slug,db_image,url,lastest_data))
             self.connection.commit()
 
         self.disconnect()

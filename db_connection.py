@@ -23,7 +23,6 @@ class Comm:
         if self.switch == False:
             try:
                 self.connection = mysql.connector.connect(host='localhost', database='test2', user='root', password='')
-                # self.connection = mysql.connector.connect(host='193.203.168.39', database='u817545168_nulled', user='u817545168_nulled', password='?KL?!1Cs4')
                 if self.connection.is_connected():
                     db_Info = self.connection.get_server_info()
                     print("Connected to MySQL Server version ", db_Info)
